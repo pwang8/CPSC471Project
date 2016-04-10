@@ -1,0 +1,158 @@
+<html>
+	<head>
+		<script>
+			
+			//The URL for the webservice requests
+			var Webservice_URL = "../webservice/webservice.php"; 
+		
+			//Populates the table with users' records
+			function initializeListOfUsers()
+			{					
+				//AJAX Request
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function() { //Callback
+				
+					//REPLY FROM WEBSERVICE
+					if (xhttp.readyState == 4 && xhttp.status == 200) 
+                    {
+						
+						//Receive and decode the response to JSON object
+						var response = JSON.parse(xhttp.responseText);					
+                        
+						//Check if the success returned was false
+						if (!response.success)
+                        {
+							alert(response.message); //Displays the error message returned from the server
+						}
+                        else //If everything was okay
+						{
+							//Generate the html that contains the users' information
+							var html = "";
+							for (var index in response.data) 	//response.data contains the array of user objects
+																//each userObject contain the id and name of a user
+							{
+								var userObject = response.data[index]; //Get the user at a specific index
+								html += "<tr>";
+									html += "<td>" + userObject.id + "</td>";
+									html += "<td>" + userObject.name + "</td>";
+									html += "<td><a href='javascript:deleteUser(" + userObject.id + ")'>Delete</a></td>";
+								html += "</tr>";
+							}
+							
+							//Populate the table body rows with the html generated
+							document.getElementById("listOfUsersTable").innerHTML = html;
+						}
+					}
+				};
+				
+				//REQUEST TO WEBSERVICE
+				xhttp.open("GET", Webservice_URL + "?method=getUsers", true);
+				xhttp.send();
+			}
+		
+			//Gets triggered when the user clicks on the add button
+			function addUser()
+			{
+				//Gets the name of the user to be added
+				var user = document.getElementById("newUserTextbox").value;
+				
+				//AJAX Request
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function()
+                {
+					//REPLY FROM WEBSERVICE
+					if (xhttp.readyState == 4 && xhttp.status == 200)
+                    {	
+                        //console.log(xhttp.responseText);
+						//Receive and decode the response to JSON object
+						var response = JSON.parse(xhttp.responseText);
+						
+						//Check if the success returned was false
+						if (!response.success)
+                        {
+							alert(response.message); //Displays the error message returned from the server
+						}
+                        else //If everything was okay
+						{	
+							//Clears the textbox
+							document.getElementById("newUserTextbox").value = "";
+							
+							//Displays the message returned from the server
+							alert(response.message);
+							
+							//Refreshes the list in the table to include the new user
+							initializeListOfUsers();
+						}
+					}
+				};
+				
+				//REQUEST TO WEBSERVICE
+				xhttp.open("GET", Webservice_URL + "?method=addUser&name=" + user, true);
+				xhttp.send();
+			}
+			
+			//Gets triggered when the user clicks on the delete link
+			function deleteUser(userID)
+			{
+				//AJAX Request
+				var xhttp = new XMLHttpRequest();
+				xhttp.onreadystatechange = function() { //Callback
+				
+					//REPLY FROM WEBSERVICE
+					if (xhttp.readyState == 4 && xhttp.status == 200)
+                    {					
+						//Receive and decode the response to JSON object
+						var response = JSON.parse(xhttp.responseText);
+						
+						//Check if the success returned was false
+						if (!response.success)
+							alert(response.message); //Displays the error message returned from the server
+						else //If everything was okay
+						{								
+							//Displays the message returned from the server
+							alert(response.message);
+							
+							//Refreshes the list in the table to exclude the new user
+							initializeListOfUsers();
+						}
+					}
+				};
+				
+				//REQUEST TO WEBSERVICE
+				xhttp.open("GET", Webservice_URL + "?method=deleteUser&id=" + userID, true);
+				xhttp.send();
+			}
+			
+		</script>
+	</head>
+	
+	<body onload="initializeListOfUsers()"> 
+	<!-- Once the page loads, it will call the "initializeListOfUsers" function to populate the table with records -->
+	
+		<!-- START NEW USER SECTION -->
+		<h1>New User</h1>
+		<hr/>
+		Name: 
+		<input type="text" id="newUserTextbox" />
+		<input type="button" value="Add New User" onclick="addUser()" />
+		<!-- END NEW USER SECTION -->
+		
+		<hr/>
+		
+		<!-- START USER LIST SECTION -->
+		<h1>List of Users</h1>
+		<hr/>
+		<table border="1">
+			<tr>
+				<th>ID</th>
+				<th>Name</th>
+				<th/>
+			</tr>
+			<tbody id="listOfUsersTable">
+			<!-- Will be populated by the function "initializeListOfUsers" -->
+			</tbody>
+		</table>
+		<!-- END USER LIST SECTION -->
+		
+	</body>
+</html>
