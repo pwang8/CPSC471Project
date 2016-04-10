@@ -31,7 +31,7 @@
 		//Execute the SQL statement
 		global $link;
 		$results = mysqli_query($link, $SQL);
-         
+		
 		//Retrieve the rows returned
 		while ($row = mysqli_fetch_row($results))
 		{
@@ -54,9 +54,39 @@
 		return $array;
 	}
     
-    function addCustomer(){
+    function addCustomer($fn, $ln, $add, $phno, $ctry, $usrn, $pw, $email)
+    {
+        $fn = mysqli_real_escape_string($link, $fn);
+        $ln = mysqli_real_escape_string($link, $ln);
+        $add = mysqli_real_escape_string($link, $add);
+        $phno = mysqli_real_escape_string($link, $phno);
+        $ctry = mysqli_real_escape_string($link, $ctry);
+        $usrn = mysqli_real_escape_string($link, $usrn);
+        $pw = mysqli_real_escape_string($link, $pw);
+        $email = mysqli_real_escape_string($link, $email);
         
+        $SQL = "INSERT INTO `customer` (`customer_id`, `f_name`, `l_name`, `address`, `phone_number`, `country`, `customer_username`, `customer_password`, `email_address`) VALUES (NULL, '".$fn."', '".$ln."', '".$add."', '".$phno."', '".$ctry."', '".$usrn."', '".$pw."', '".$email."')";
+        
+        $results = mysqli_query($link, $SQL);
+        return true;
     }
+    
+    //Deletes the user from the database and returns a boolean value to indicate whether it was successful or not
+	function deleteUser($id)
+	{
+		global $link;
+		
+		//Clean all the variables that you will use in creating your SQL statement to avoid "SQL Injection"
+		$id = mysqli_real_escape_string($link, $id);
+		
+		//Create the SQL statement
+		$SQL = "DELETE FROM customer WHERE id = ".$id;
+		
+		//Execute the SQL statement
+		$results = mysqli_query($link, $SQL);
+		
+		return true;
+	}
 	
 	
 ?>
